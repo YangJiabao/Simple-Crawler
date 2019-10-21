@@ -5,7 +5,7 @@ import os
 class work():
     def all_url(self, url):
         html = self.request(url)##调用请求
-        html.encoding = 'gb2312'#此处网页编码为gb2312d
+        html.encoding = 'gb2312'#此处网页编码为gb2312
         all_a = BeautifulSoup(html.text, 'lxml').find('div', class_='news_bom-left').find_all('a',attrs={"target": True})#使用target跳过前两个href
         #print(all_a)
         for a in all_a:
@@ -27,16 +27,21 @@ class work():
         html.encoding = 'gb2312'
         max_span = BeautifulSoup(html.text, 'lxml').find('div', class_='itempage').find_all('a')[-2].get_text()
         #这个上面有提到,使用get_text()清空所有html标签元素,之后就会返回干净的文字,使用get_text()方法从大段html中提取文本,这里提取页码数字,因为实际href比抓的少,所以减去两个
-        for page in range(2, int(max_span) + 1):
-            print(page)#???int(max_span)
-            page_url = href[0:34] + '_' + str(page) + ".html"
-            #print(page_url)
-            self.img(page_url) ##调用img函数
+        for page in range(1, int(max_span) + 1):
+            print("第" ,page , "页")#???int(max_span)
+            if page ==1:
+                page_url = href[0:34] + 'index' + ".html"
+                #print(page_url)
+                self.img(page_url)
+            else:
+                page_url = href[0:34] + 'index_' + str(page) + ".html"
+                #print(page_url)
+                self.img(page_url) ##调用img函数
 
     def img(self, page_url): ##处理图片页面地址获得图片的实际地址
         img_html = self.request(page_url)
         img_html.encoding = 'gb2312'
-        #print(img_html.content)...截取html如果只是片段的话，可能是因为get的网址就是那么多代码，用get的网址打开源代码看一下
+        #print(img_html.content)#...截取html如果只是片段的话，可能是因为get的网址就是那么多代码，用get的网址打开源代码看一下
         img_url = BeautifulSoup(img_html.text, 'lxml').find('div', class_='picsbox picsboxcenter').find('img')['src']
         #print(img_url)
         self.save(img_url)
@@ -46,24 +51,29 @@ class work():
         headers1 = {
             'User-Agent': 'User-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36',
             'referer': "url1",  # 伪造一个访问来源
+            'Accept': 'text / html, application / xhtml + xml, application / xml;q = 0.9, image / webp, image / apng, * / *;q = 0.8, application / signed - exchange;v = b3',
+            'Accept - Encoding': 'gzip, deflate, br',
+            'Accept - Language': 'zh - CN, zh;q = 0.9',
             'Connection': 'keep - alive'
         }
         #print(url1)
-        img = requests.get(img_url, headers = headers1)
+        img = requests.get(img_url, headers = headers1,verify = False)#verify = False，不验证https证书，这里验证的话抓取时间长了会报ssl错误
+        #print(img.content)
         f = open(name + '.jpg', 'ab')
         f.write(img.content)
         f.close()
 
     def mkdir(self, path): ##创建文件夹
-        path = path.strip()
-        isExists = os.path.exists(os.path.join("E:\wwe"))#os.path.exists判断括号里的文件是否存在的意思，括号内的可以是文件路径。
+        path = path.strip()#用于移除字符串头尾指定的字符,此处用于去除字符串空格
+        isExists = os.path.exists(os.path.join("E:\wwe",path))#os.path.exists判断括号里的文件是否存在的意思，括号内的可以是文件路径。
         if not isExists:
             print('建了一个文件夹！')
-            os.makedirs(os.path.join("E:\wwe"))#创建文件夹
-            os.chdir(os.path.join("E:\wwe")) ##切换到目录
+            os.makedirs(os.path.join("E:\wwe",path))#创建文件夹
+            os.chdir(os.path.join("E:\wwe",path)) ##切换到目录
             return True
         else:
             print( path, '文件夹已经存在了！')
+            os.chdir(os.path.join("E:\wwe", path))  ##切换到目录
             return False
 
     def request(self, url): ##这个函数获取网页的response 然后返回
@@ -79,7 +89,7 @@ def main():
     worm= work() ##实例化
     for j in range(1,86):
         print('第{}组开始下载'.format(j))#新增：每下载一组输出第几组正在下载
-        url1 = "https://www.7160.com/xiaohua/list_6_{}.html".format(str(j))
+        url1 = "https://www.7160.com/qingchunmeinv/list_2_{}.html".format(str(j))
         worm.all_url(url1) ##给函数all_url传入参数
 #启动
 main()
