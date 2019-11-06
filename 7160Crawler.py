@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import os
 #导入所需要的模块
-class work():
+class work:
     def all_url(self, url):
         html = self.request(url)##调用请求
         html.encoding = 'gb2312'#此处网页编码为gb2312
