@@ -4,7 +4,7 @@ import os
 import json
 
 
-class wangzhe():
+class wangzhe:
     def hero_skills(self,rec,alt):
         rec.encoding = 'gbk'
         #print(rec.text)
